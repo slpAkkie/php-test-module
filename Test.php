@@ -10,7 +10,9 @@ class Test
     private const CLI_DEFAULT_COLOR = "\e[39m";
 
     private const DEFAULT_SEPARATOR_LEN = 50;
+
     private const INFO_PREFIX = '[INFO] ';
+    private const ERROR_PREFIX = '[ERROR] ';
 
     private static int $testNumber = 1;
 
@@ -76,9 +78,28 @@ class Test
             : self::failed();
     }
 
+    /**
+     * Проверяет, что значение равно null.
+     *
+     * @param mixed $val
+     * @return void
+     */
     public static function assertNull(mixed $val): void
     {
         is_null($val)
+            ? self::passed()
+            : self::failed();
+    }
+
+    /**
+     * Проверяет, что значение не равно null.
+     *
+     * @param mixed $val
+     * @return void
+     */
+    public static function assertNonNull(mixed $val): void
+    {
+        !is_null($val)
             ? self::passed()
             : self::failed();
     }
@@ -177,6 +198,13 @@ class Test
         print(self::CLI_RED_COLOR . '[Провален]' . self::CLI_DEFAULT_COLOR);
     }
 
+    /**
+     * Напечатать разделитель вывода.
+     *
+     * @param string $color
+     * @param int $length
+     * @return void
+     */
     private static function printSeparator(string $color = self::CLI_BLUE_COLOR, int $length = self::DEFAULT_SEPARATOR_LEN): void
     {
         print($color . str_repeat('-', $length) . self::CLI_DEFAULT_COLOR . PHP_EOL);
@@ -198,5 +226,23 @@ class Test
         self::printSeparator(length: $separatorLength);
         print(self::CLI_BLUE_COLOR . $message . self::CLI_DEFAULT_COLOR . PHP_EOL);
         self::printSeparator(length: $separatorLength);
+    }
+
+    /**
+     * Выводит сообщение об ошибке.
+     *
+     * @param string $str
+     * @return void
+     */
+    public static function printError(string $str): void
+    {
+        $message = self::ERROR_PREFIX . $str;
+        $separatorLength = strlen($message) > self::DEFAULT_SEPARATOR_LEN
+            ? strlen($message)
+            : self::DEFAULT_SEPARATOR_LEN;
+
+        self::printSeparator(color: self::CLI_RED_COLOR, length: $separatorLength);
+        print(self::CLI_RED_COLOR . $message . self::CLI_DEFAULT_COLOR . PHP_EOL);
+        self::printSeparator(color: self::CLI_RED_COLOR, length: $separatorLength);
     }
 }
