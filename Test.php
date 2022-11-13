@@ -245,4 +245,14 @@ class Test
         print(self::CLI_RED_COLOR . $message . self::CLI_DEFAULT_COLOR . PHP_EOL);
         self::printSeparator(color: self::CLI_RED_COLOR, length: $separatorLength);
     }
+
+    /**
+     * Сбросить счетчик тестов.
+     *
+     * @return void
+     */
+    public static function resetTestCounter(): void
+    {
+        self::$testNumber = 1;
+    }
 }
