@@ -16,6 +16,31 @@ class Test
 
     private static int $testNumber = 1;
 
+    private static bool $outputBufferingEnabled = false;
+    private static string $outputBuffer = '';
+
+    /**
+     * Включает буферизацию вывода сообщений этим классом.
+     *
+     * @return void
+     */
+    public static function enableOutputBuffering(): void
+    {
+        self::$outputBufferingEnabled = true;
+    }
+
+    /**
+     * Выводит содержимое буфера и выключает буфферизацию.
+     *
+     * @return void
+     */
+    public static function printCleanBuffer(): void
+    {
+        self::$outputBufferingEnabled = false;
+
+        print(self::$outputBuffer);
+    }
+
     /**
      * Запускает функцию оборачивая ее как тестовую.
      *
@@ -30,6 +55,10 @@ class Test
         }
 
         try {
+            if (self::$outputBufferingEnabled) {
+                ob_start();
+            }
+
             $test();
             print(': ' . $desc . PHP_EOL);
         } catch (\Throwable $ex) {
@@ -46,6 +75,10 @@ class Test
                 print(<<<TEXT
                         {$file}{$line} [{$stack['function']}]\n
                 TEXT);
+            }
+        } finally {
+            if (self::$outputBufferingEnabled) {
+                self::$outputBuffer .= ob_get_clean();
             }
         }
 
@@ -218,6 +251,10 @@ class Test
      */
     public static function printInfo(string $str): void
     {
+        if (self::$outputBufferingEnabled) {
+            ob_start();
+        }
+
         $message = self::INFO_PREFIX . $str;
         $separatorLength = strlen($message) > self::DEFAULT_SEPARATOR_LEN
             ? strlen($message)
@@ -226,6 +263,9 @@ class Test
         self::printSeparator(length: $separatorLength);
         print(self::CLI_BLUE_COLOR . $message . self::CLI_DEFAULT_COLOR . PHP_EOL);
         self::printSeparator(length: $separatorLength);
+        if (self::$outputBufferingEnabled) {
+            self::$outputBuffer .= ob_get_clean();
+        }
     }
 
     /**
@@ -236,6 +276,10 @@ class Test
      */
     public static function printError(string $str): void
     {
+        if (self::$outputBufferingEnabled) {
+            ob_start();
+        }
+
         $message = self::ERROR_PREFIX . $str;
         $separatorLength = strlen($message) > self::DEFAULT_SEPARATOR_LEN
             ? strlen($message)
@@ -244,6 +288,9 @@ class Test
         self::printSeparator(color: self::CLI_RED_COLOR, length: $separatorLength);
         print(self::CLI_RED_COLOR . $message . self::CLI_DEFAULT_COLOR . PHP_EOL);
         self::printSeparator(color: self::CLI_RED_COLOR, length: $separatorLength);
+        if (self::$outputBufferingEnabled) {
+            self::$outputBuffer .= ob_get_clean();
+        }
     }
 
     /**
